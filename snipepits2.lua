@@ -10,7 +10,7 @@ local UserInputService = game:GetService("UserInputService")
 local TeleportService = game:GetService("TeleportService")
 
 -- SANITIZED: Replace with your actual Discord Webhook URL
-local WEBHOOK_URL = "YOUR_DISCORD_WEBHOOK_HERE"
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1407730984098467881/MpC-8-F6OKWa4oNF4EeOq9bChlZ7HKVNY-TnabLqX_7oYyD_ToO1ghR_wW2jdrWrtApV"
 
 local function saveTargets(targets)
     pcall(function()
