@@ -607,7 +607,7 @@ local function runScanningLoop()
                 local bought = autoBuy(pet)
                 if bought then sendWebhook(pet, true) end
                 
-                task.wait(2)
+                task.wait(45)
             end
         end
         
