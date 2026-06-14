@@ -153,7 +153,9 @@ local function isTargeted(pet)
 end
 
 local function autoBuy(pet)
-    if not pet.prompt then return false end
+    -- Double check the prompt hasn't been disabled in the split second before teleporting
+    if not pet.prompt or not pet.prompt.Enabled then return false end
+
     local char = player.Character
     local hrp = char and char:FindFirstChild("HumanoidRootPart")
     if hrp and pet.model then
