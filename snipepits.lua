@@ -72,7 +72,7 @@ local PLACE_ID = 97598239454123
 -- Cleanup old
 _G.PetScannerStop = true
 task.wait(0.2)
-_G.PetScannerStop = false
+_G.PetScannerStop = true
 pcall(function()
     for _, v in pairs(game:GetService("CoreGui"):GetChildren()) do
         if v.Name == "PetScannerGUI" then v:Destroy() end
