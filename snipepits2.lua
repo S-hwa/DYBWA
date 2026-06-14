@@ -169,6 +169,7 @@ local function autoBuy(pet)
         end
     end
     pet.prompt.MaxActivationDistance = 9999
+    pet.prompt.HoldDuration = 0
     fireproximityprompt(pet.prompt)
     return true
 end
