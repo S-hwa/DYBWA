@@ -34,37 +34,6 @@ local UserInputService = game:GetService("UserInputService")
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 
-local WEBHOOK_URL = "https://discord.com/api/webhooks/1407730984098467881/MpC-8-F6OKWa4oNF4EeOq9bChlZ7HKVNY-TnabLqX_7oYyD_ToO1ghR_wW2jdrWrtApV"
-local function sendWebhook(pet, bought)
-    pcall(function()
-        local msg = bought
-            and ("@everyone\n✅ **BOUGHT: " .. pet.size .. " " .. pet.name .. "**\n💰 Cost: `" .. pet.cost .. "`")
-            or  ("@everyone\n🐾 **FOUND: " .. pet.size .. " " .. pet.name .. "**\n💰 Cost: `" .. pet.cost .. "`")
-        local body = HttpService:JSONEncode({
-            content = msg,
-            username = "Pet Scanner",
-        })
-        -- use executor's http function (bypasses Roblox restrictions)
-        local httpFn = request or http_request or (http and http.request) or syn and syn.request
-        if httpFn then
-            httpFn({
-                Url = WEBHOOK_URL,
-                Method = "POST",
-                Headers = {["Content-Type"] = "application/json"},
-                Body = body,
-            })
-        else
-            -- fallback to HttpService (may not work)
-            HttpService:RequestAsync({
-                Url = WEBHOOK_URL,
-                Method = "POST",
-                Headers = {["Content-Type"] = "application/json"},
-                Body = body,
-            })
-        end
-    end)
-end
-
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local PLACE_ID = 97598239454123
@@ -244,39 +213,22 @@ exitBtn.MouseButton1Click:Connect(function()
     sg:Destroy()
 end)
 
--- Drag (Mobile and PC Compatible)
+-- Drag
 do
-    local dragging = false
-    local dragInput, dragStart, startPos
-
-    header.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = main.Position
-
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
+    local down, ds, sp
+    header.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+            down = true; ds = i.Position; sp = main.Position
         end
     end)
-
-    header.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input
-        end
+    UserInputService.InputEnded:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then down = false end
     end)
- UserInputService.InputChanged:Connect(function(input)
-        if dragging and input == dragInput then
-            local delta = input.Position - dragStart
-            main.Position = UDim2.new(
-                startPos.X.Scale, 
-                startPos.X.Offset + delta.X, 
-                startPos.Y.Scale, 
-                startPos.Y.Offset + delta.Y
-            )
+    UserInputService.InputChanged:Connect(function(i)
+        if not down then return end
+        if i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch then
+            local d = i.Position - ds
+            main.Position = UDim2.new(0, sp.X.Offset + d.X, 0, sp.Y.Offset + d.Y)
         end
     end)
 end
@@ -534,9 +486,7 @@ scanBtn.MouseButton1Click:Connect(function()
                     if isTargeted(pet) then
                         found = true
                         updateStatus("✓ FOUND: " .. pet.size .. " " .. pet.name .. " — BUYING!", Color3.fromRGB(80, 220, 100))
-                        sendWebhook(pet, false)
-                        local bought = autoBuy(pet)
-                        if bought then sendWebhook(pet, true) end
+                        autoBuy(pet)
                         task.wait(2)
                     end
                 end
