@@ -568,22 +568,34 @@ end
 -- UNIFIED SINGLE PROCESSING LOOP
 -- ═══════════════════════════════════════
 local loopActive = false
+
 local function runScanningLoop()
     if loopActive then return end
     loopActive = true
     
+    -- Create a memory cache to track pets we've already tried to buy
+    local processedPets = {} 
+    
+    -- Make it a "weak table" so when the pet is destroyed by the game, it clears from memory to prevent lag
+    setmetatable(processedPets, {__mode = "k"}) 
+
     while isScanning and not _G.PetScannerStop do
         refreshCurrentPets()
         local pets = getPets()
         local found = false
         
         for _, pet in pairs(pets) do
-            if isTargeted(pet) then
+            -- Add a check: ONLY proceed if we haven't processed THIS exact pet model yet
+            if isTargeted(pet) and not processedPets[pet.model] then
                 found = true
+                processedPets[pet.model] = true -- Mark as processed so we never touch it again
+                
                 updateStatus("✓ FOUND: " .. pet.size .. " " .. pet.name .. " — BUYING!", Color3.fromRGB(80, 220, 100))
                 sendWebhook(pet, false)
+                
                 local bought = autoBuy(pet)
                 if bought then sendWebhook(pet, true) end
+                
                 task.wait(2)
             end
         end
