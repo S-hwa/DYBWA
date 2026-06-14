@@ -112,11 +112,20 @@ end
 local function getPets()
     local petSpawns = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("WildPetSpawns")
     if not petSpawns then return {} end
+    
     local pets = {}
     for _, pet in pairs(petSpawns:GetChildren()) do
+        local buyPrompt = pet:FindFirstChild("BuyPrompt", true)
+        
+        -- THE FIX: If the pet doesn't have a BuyPrompt, or it's disabled, ignore it!
+        -- This prevents the script from targeting pets that are already bought/running to base.
+        if not buyPrompt or not buyPrompt.Enabled then
+            continue 
+        end
+        
         local costLabel = pet:FindFirstChild("PetCostTimer", true)
         local leaveLabel = pet:FindFirstChild("PetLeaveTimer", true)
-        local buyPrompt = pet:FindFirstChild("BuyPrompt", true)
+        
         local cost = costLabel and costLabel:FindFirstChildWhichIsA("TextLabel") and costLabel:FindFirstChildWhichIsA("TextLabel").Text or "?"
         local leave = leaveLabel and leaveLabel:FindFirstChildWhichIsA("TextLabel") and leaveLabel:FindFirstChildWhichIsA("TextLabel").Text or "?"
         local fullName = pet.Name
