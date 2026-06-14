@@ -607,10 +607,12 @@ local function runScanningLoop()
                 local bought = autoBuy(pet)
                 if bought then sendWebhook(pet, true) end
                 
-                task.wait(45)
+                
             end
         end
         
+        task.wait(45)
+
         if not found then
             if autoHop then
                 updateStatus("✗ NOT FOUND — HOPPING SERVER...", Color3.fromRGB(255, 180, 50))
