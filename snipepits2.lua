@@ -55,6 +55,10 @@ pcall(function()
 end)
 task.wait(0.1)
 
+-- ⚙️ INVENTORY CONFIGURATION (Backpack Setup)
+local INVENTORY_FOLDER = player:WaitForChild("Backpack") 
+local MAX_WAIT_TIME = 30 -- Failsafe timeout in seconds so you don't get stuck if a buy fails
+
 -- All pets and sizes
 local ALL_PETS = {
     "Frog", "Bunny", "Bee", "Raccoon", "Owl", "Robin", "Deer",
@@ -577,7 +581,7 @@ local function updateStatus(text, color)
 end
 
 -- ═══════════════════════════════════════
--- UNIFIED SINGLE PROCESSING LOOP
+-- UNIFIED SINGLE PROCESSING LOOP (BATCH BUY)
 -- ═══════════════════════════════════════
 local loopActive = false
 
@@ -585,34 +589,93 @@ local function runScanningLoop()
     if loopActive then return end
     loopActive = true
     
-    -- Create a memory cache to track pets we've already tried to buy
     local processedPets = {} 
-    
-    -- Make it a "weak table" so when the pet is destroyed by the game, it clears from memory to prevent lag
     setmetatable(processedPets, {__mode = "k"}) 
 
     while isScanning and not _G.PetScannerStop do
         refreshCurrentPets()
         local pets = getPets()
+        
         local found = false
+        local justBought = false
+        
+        -- 1. Gather all the pets we want to buy in this server
+        local petsToBuy = {}
+        local uniqueNamesToBuy = {} -- Used to filter our backpack safely
         
         for _, pet in pairs(pets) do
-            -- Add a check: ONLY proceed if we haven't processed THIS exact pet model yet
             if isTargeted(pet) and not processedPets[pet.model] then
+                table.insert(petsToBuy, pet)
+                uniqueNamesToBuy[pet.name] = true
                 found = true
-                processedPets[pet.model] = true -- Mark as processed so we never touch it again
+            end
+        end
+        
+        if #petsToBuy > 0 then
+            -- 2. Count how many of these specific pets we ALREADY have in our backpack
+            local initialSpecificCount = 0
+            for _, item in pairs(INVENTORY_FOLDER:GetChildren()) do
+                for targetName, _ in pairs(uniqueNamesToBuy) do
+                    if string.find(item.Name, targetName) then
+                        initialSpecificCount = initialSpecificCount + 1
+                        break -- Found a match, move to the next backpack item
+                    end
+                end
+            end
+            
+            -- 3. Buy them all as quickly as possible
+            local successfulBuys = 0
+            for _, pet in ipairs(petsToBuy) do
+                processedPets[pet.model] = true 
                 
-                updateStatus("✓ FOUND: " .. pet.size .. " " .. pet.name .. " — BUYING!", Color3.fromRGB(80, 220, 100))
+                updateStatus("✓ BUYING: " .. pet.size .. " " .. pet.name, Color3.fromRGB(80, 220, 100))
                 sendWebhook(pet, false)
                 
                 local bought = autoBuy(pet)
-                if bought then sendWebhook(pet, true) end
+                if bought then 
+                    sendWebhook(pet, true) 
+                    successfulBuys = successfulBuys + 1
+                end
                 
-                task.wait(45)
+                -- Tiny delay so the game doesn't drop simultaneous proximity prompt clicks
+                task.wait(0.5) 
+            end
+            
+            -- 4. Wait for ALL of them to arrive in the backpack
+            if successfulBuys > 0 then
+                local targetCount = initialSpecificCount + successfulBuys
+                updateStatus("⏳ WAITING FOR " .. successfulBuys .. " PET(S) TO APPEAR...", Color3.fromRGB(80, 220, 255))
+                
+                local startTime = os.time()
+                local currentSpecificCount = 0
+                
+                repeat 
+                    task.wait(0.3)
+                    currentSpecificCount = 0
+                    for _, item in pairs(INVENTORY_FOLDER:GetChildren()) do
+                        for targetName, _ in pairs(uniqueNamesToBuy) do
+                            if string.find(item.Name, targetName) then
+                                currentSpecificCount = currentSpecificCount + 1
+                                break
+                            end
+                        end
+                    end
+                until (currentSpecificCount >= targetCount) or (os.time() - startTime >= MAX_WAIT_TIME)
+                
+                if currentSpecificCount >= targetCount then
+                    updateStatus("✨ ALL PETS SECURED!", Color3.fromRGB(100, 255, 100))
+                    task.wait(1) -- Brief safety pause before hopping
+                else
+                    updateStatus("⚠️ TIMEOUT: Some pets didn't arrive.", Color3.fromRGB(255, 100, 100))
+                    task.wait(1)
+                end
+                
+                justBought = true
             end
         end
-
-        if not found then
+        
+        -- Only server hop if nothing was found on the map, and we didn't just buy something
+        if not found and not justBought then
             if autoHop then
                 updateStatus("✗ NOT FOUND — HOPPING SERVER...", Color3.fromRGB(255, 180, 50))
                 hopServer()
@@ -621,6 +684,7 @@ local function runScanningLoop()
                 updateStatus("● SCANNING... NO TARGET PET YET", Color3.fromRGB(180, 120, 255))
             end
         end
+        
         task.wait(2)
     end
     
