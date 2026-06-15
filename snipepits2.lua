@@ -1,13 +1,19 @@
 -- Pet Scanner v2 - Fixed & Optimized
 if not game:IsLoaded() then game.Loaded:Wait() end
 
+print("executed")
+
 local playerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
 local loadingGui = playerGui:WaitForChild("LoadingGui", 30)
 
 if loadingGui then
+    print("loadingGUI true")
     local variant1 = loadingGui:WaitForChild("Variant1Frame")
+    print("var1 true")
     local innerFrame = variant1:WaitForChild("InnerFrame")
+    print("inner true")
     local skipTxt = innerFrame:WaitForChild("SkipTxt")
+    print("waiting for skip")
     
     -- Wait until SkipTxt is enabled (meaning it's safe to click)
     repeat task.wait(0.2) until skipTxt.Enabled
