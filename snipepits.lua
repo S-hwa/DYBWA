@@ -13,11 +13,12 @@ if loadingGui then
     print("loadingGui true")
     local variant1 = loadingGui:WaitForChild("Variant1Frame")
     local innerFrame = variant1:WaitForChild("InnerFrame")
+    local counterTxt = innerFrame:WaitForChild("CounterTxt")
     local skipTxt = innerFrame:WaitForChild("SkipTxt")
     local pressAnyTxt = innerFrame:WaitForChild("PressAnyTxt")
     
     print("waiting to finish loading")
-    repeat task.wait(0.1) until pressAnyTxt.Text:find("Press") or skipTxt.Text:find("Skip")
+    repeat task.wait(0.1) until pressAnyTxt.Text:find("Press") or skipTxt.Text:find("skip") or counterTxt.Text:find("Fully")
     task.wait(1)
     print("skipping")
 
