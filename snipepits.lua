@@ -17,7 +17,7 @@ if loadingGui then
     local pressAnyTxt = innerFrame:WaitForChild("PressAnyTxt")
     
     print("waiting to finish loading")
-    repeat task.wait(0.2) until skipTxt.Visible or pressAnyTxt.Visible
+    repeat task.wait(0.2) until pressAnyTxt.Visible end
     task.wait(0.1)
     print("skipping")
 
