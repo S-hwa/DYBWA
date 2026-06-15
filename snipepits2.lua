@@ -75,9 +75,6 @@ local function loadTargets()
     return result
 end
 
-local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-
 -- Cleanup old instances
 _G.PetScannerStop = true
 task.wait(0.2)
