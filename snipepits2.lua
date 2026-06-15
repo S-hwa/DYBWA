@@ -15,12 +15,15 @@ if loadingGui and loadingGui.Enabled then
         skipTxt.Visible or pressAnyTxt.Visible
     task.wait(0.1)
     
-    -- Click whichever one is visible
-    if skipTxt.Visible then
-        fireclick(skipTxt)
-    else
-        fireclick(pressAnyTxt)
-    end
+    -- Simulate a real tap at center of screen using VirtualInputManager
+    local VIM = game:GetService("VirtualInputManager")
+    local vp = workspace.CurrentCamera.ViewportSize
+    local cx, cy = vp.X / 2, vp.Y / 2
+
+    VIM:SendMouseButtonEvent(cx, cy, 0, true, game, 0)
+    task.wait(0.05)
+    VIM:SendMouseButtonEvent(cx, cy, 0, false, game, 0)
+    
     
     -- Wait for LoadingGui to disappear
     repeat task.wait(0.2) until not playerGui:FindFirstChild("LoadingGui") or not loadingGui.Enabled
