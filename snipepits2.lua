@@ -867,12 +867,6 @@ if autoStartScan or autoHop then
     autoHop = true
 end
 
--- Auto-collapse GUI on load
-isCollapsed = true
-bodyContent.Visible = false
-main.Size = UDim2.new(main.Size.X.Scale, main.Size.X.Offset, 0, 42)
-collapseBtn.Text = "+"
-
 -- Safely trigger auto-start without double threading
 task.wait(1)
 if autoStartScan or true then -- defaults to scan on load
