@@ -29,6 +29,9 @@ end
 task.wait(0.5)
 
 -- Failsafe 1: Wait for the character and RootPart to physically exist and be ready
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
 local character = player.Character or player.CharacterAdded:Wait()
 local hrp = character:WaitForChild("HumanoidRootPart", 15)
 
