@@ -57,7 +57,7 @@ task.wait(0.1)
 
 -- ⚙️ INVENTORY CONFIGURATION (Backpack Setup)
 local INVENTORY_FOLDER = player:WaitForChild("Backpack") 
-local MAX_WAIT_TIME = 30 -- Failsafe timeout in seconds so you don't get stuck if a buy fails
+local MAX_WAIT_TIME = 60 -- Failsafe timeout in seconds so you don't get stuck if a buy fails
 
 -- All pets and sizes
 local ALL_PETS = {
