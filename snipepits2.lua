@@ -8,6 +8,18 @@ local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local hrp = character:WaitForChild("HumanoidRootPart", 15)
 
+-- Failsafe 2: Wait for the pet folder to physically load into the workspace
+-- We use a 60-second timeout so the script doesn't hang forever if the server is bugged
+local mapFolder = workspace:WaitForChild("Map", 60)
+
+if mapFolder then
+    -- Now wait for the actual spawns folder inside the Map
+    mapFolder:WaitForChild("WildPetSpawns", 60)
+else
+    warn("Pet Scanner: The Map folder took too long to load or doesn't exist!")
+end
+
+
 local SAVE_FILE = "PetScannerTargets.json"
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
