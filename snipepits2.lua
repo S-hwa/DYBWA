@@ -1,8 +1,6 @@
 -- Pet Scanner v2 - Fixed & Optimized
 if not game:IsLoaded() then game.Loaded:Wait() end
 
-local hideOnLoad = true
-
 local playerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
 local loadingGui = playerGui:WaitForChild("LoadingGui", 30)
 
@@ -870,9 +868,10 @@ if autoStartScan or autoHop then
 end
 
 -- Auto-collapse GUI on load
-if hideOnLoad then
-    collapseBtn.MouseButton1Click:Fire()
-end
+isCollapsed = true
+bodyContent.Visible = false
+main.Size = UDim2.new(main.Size.X.Scale, main.Size.X.Offset, 0, 42)
+collapseBtn.Text = "+"
 
 -- Safely trigger auto-start without double threading
 task.wait(1)
