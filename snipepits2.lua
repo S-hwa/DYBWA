@@ -31,7 +31,7 @@ if loadingGui and loadingGui.Enabled then
     repeat task.wait(0.2) until not playerGui:FindFirstChild("LoadingGui") or not loadingGui.Enabled
 end
 
-task.wait(0.5)
+task.wait(1)
 
 -- Failsafe 1: Wait for the character and RootPart to physically exist and be ready
 local Players = game:GetService("Players")
