@@ -1,8 +1,26 @@
 -- Pet Scanner v2 - Fixed & Optimized
 if not game:IsLoaded() then game.Loaded:Wait() end
 
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
+local playerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+local loadingGui = playerGui:WaitForChild("LoadingGui", 30)
+
+if loadingGui then
+    local variant1 = loadingGui:WaitForChild("Variant1Frame")
+    local innerFrame = variant1:WaitForChild("InnerFrame")
+    local skipTxt = innerFrame:WaitForChild("SkipTxt")
+    
+    -- Wait until SkipTxt is enabled (meaning it's safe to click)
+    repeat task.wait(0.2) until skipTxt.Enabled
+    task.wait(0.1) -- small buffer
+    
+    -- Now click it
+    fireclick(skipTxt)
+    
+    -- Wait for LoadingGui to disappear
+    repeat task.wait(0.2) until not playerGui:FindFirstChild("LoadingGui") or not loadingGui.Enabled
+end
+
+task.wait(1)
 
 -- Failsafe 1: Wait for the character and RootPart to physically exist and be ready
 local character = player.Character or player.CharacterAdded:Wait()
