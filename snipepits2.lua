@@ -1,6 +1,12 @@
 -- Pet Scanner v2 - Fixed & Optimized
 if not game:IsLoaded() then game.Loaded:Wait() end
-task.wait(2) -- wait for game to fully load
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- Failsafe 1: Wait for the character and RootPart to physically exist and be ready
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart", 15)
 
 local SAVE_FILE = "PetScannerTargets.json"
 local HttpService = game:GetService("HttpService")
