@@ -4,7 +4,7 @@ if not game:IsLoaded() then game.Loaded:Wait() end
 local playerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
 local loadingGui = playerGui:WaitForChild("LoadingGui", 30)
 
-if loadingGui.Enabled then
+if loadingGui and loadingGui.Enabled then
     local variant1 = loadingGui:WaitForChild("Variant1Frame")
     local innerFrame = variant1:WaitForChild("InnerFrame")
     local skipTxt = innerFrame:WaitForChild("SkipTxt")
