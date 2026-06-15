@@ -221,12 +221,15 @@ sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 pcall(function() sg.Parent = game:GetService("CoreGui") end)
 if not sg.Parent then sg.Parent = playerGui end
 
+local MIN_WIDTH = 520
+local MIN_HEIGHT = 300
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 270, 0, 500)
-main.Position = UDim2.new(0, 16, 0.5, -250)
+main.Size = UDim2.new(0, 700, 0, 340)
+main.Position = UDim2.new(0.5, -350, 0.5, -170)
 main.BackgroundColor3 = Color3.fromRGB(12, 12, 20)
 main.BackgroundTransparency = 0.05
 main.BorderSizePixel = 0
+main.ClipsDescendants = true
 Instance.new("UICorner", main).CornerRadius = UDim.new(0, 14)
 
 local mainStroke = Instance.new("UIStroke", main)
@@ -260,7 +263,7 @@ Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
 dot.Parent = header
 
 local titleLbl = Instance.new("TextLabel")
-titleLbl.Size = UDim2.new(1, -80, 1, 0)
+titleLbl.Size = UDim2.new(1, -130, 1, 0)
 titleLbl.Position = UDim2.new(0, 30, 0, 0)
 titleLbl.BackgroundTransparency = 1
 titleLbl.Text = "PET SCANNER"
@@ -269,6 +272,23 @@ titleLbl.TextSize = 13
 titleLbl.TextColor3 = Color3.fromRGB(180, 120, 255)
 titleLbl.TextXAlignment = Enum.TextXAlignment.Left
 titleLbl.Parent = header
+
+-- Collapse/Expand toggle button
+local isCollapsed = false
+local bodyContent = Instance.new("Frame") -- wrapper for all non-header content
+
+local collapseBtn = Instance.new("TextButton")
+collapseBtn.Size = UDim2.new(0, 26, 0, 26)
+collapseBtn.Position = UDim2.new(1, -64, 0.5, -13)
+collapseBtn.BackgroundColor3 = Color3.fromRGB(40, 80, 140)
+collapseBtn.BackgroundTransparency = 0.2
+collapseBtn.Text = "—"
+collapseBtn.Font = Enum.Font.GothamBold
+collapseBtn.TextSize = 14
+collapseBtn.TextColor3 = Color3.fromRGB(180, 210, 255)
+collapseBtn.BorderSizePixel = 0
+Instance.new("UICorner", collapseBtn).CornerRadius = UDim.new(0, 6)
+collapseBtn.Parent = header
 
 local exitBtn = Instance.new("TextButton")
 exitBtn.Size = UDim2.new(0, 26, 0, 26)
@@ -287,6 +307,19 @@ exitBtn.MouseButton1Click:Connect(function()
     isScanning = false
     _G.PetScannerStop = true
     sg:Destroy()
+end)
+
+collapseBtn.MouseButton1Click:Connect(function()
+    isCollapsed = not isCollapsed
+    if isCollapsed then
+        bodyContent.Visible = false
+        main.Size = UDim2.new(main.Size.X.Scale, main.Size.X.Offset, 0, 42)
+        collapseBtn.Text = "+"
+    else
+        bodyContent.Visible = true
+        main.Size = UDim2.new(main.Size.X.Scale, main.Size.X.Offset, 0, math.max(main.Size.Y.Offset, MIN_HEIGHT))
+        collapseBtn.Text = "—"
+    end
 end)
 
 -- Drag System (Mobile & PC Fix)
@@ -327,14 +360,22 @@ do
     end)
 end
 
+-- Body content wrapper (hidden when collapsed)
+bodyContent.Size = UDim2.new(1, 0, 1, -42)
+bodyContent.Position = UDim2.new(0, 0, 0, 42)
+bodyContent.BackgroundTransparency = 1
+bodyContent.BorderSizePixel = 0
+bodyContent.Parent = main
+
+-- Status bar (full width at top of body)
 local statusBar = Instance.new("Frame")
-statusBar.Size = UDim2.new(1, -20, 0, 28)
-statusBar.Position = UDim2.new(0, 10, 0, 50)
+statusBar.Size = UDim2.new(1, -20, 0, 26)
+statusBar.Position = UDim2.new(0, 10, 0, 6)
 statusBar.BackgroundColor3 = Color3.fromRGB(20, 15, 35)
 statusBar.BackgroundTransparency = 0.2
 statusBar.BorderSizePixel = 0
 Instance.new("UICorner", statusBar).CornerRadius = UDim.new(0, 8)
-statusBar.Parent = main
+statusBar.Parent = bodyContent
 
 local statusLbl = Instance.new("TextLabel")
 statusLbl.Size = UDim2.new(1, 0, 1, 0)
@@ -345,20 +386,28 @@ statusLbl.TextSize = 10
 statusLbl.TextColor3 = Color3.fromRGB(120, 120, 160)
 statusLbl.Parent = statusBar
 
+-- LEFT COLUMN: Target Pets
+local leftCol = Instance.new("Frame")
+leftCol.Size = UDim2.new(0.5, -8, 1, -80)
+leftCol.Position = UDim2.new(0, 10, 0, 38)
+leftCol.BackgroundTransparency = 1
+leftCol.BorderSizePixel = 0
+leftCol.Parent = bodyContent
+
 local targetLbl = Instance.new("TextLabel")
-targetLbl.Size = UDim2.new(1, -20, 0, 18)
-targetLbl.Position = UDim2.new(0, 10, 0, 86)
+targetLbl.Size = UDim2.new(1, 0, 0, 18)
+targetLbl.Position = UDim2.new(0, 0, 0, 0)
 targetLbl.BackgroundTransparency = 1
 targetLbl.Text = "TARGET PETS  (check to enable)"
 targetLbl.Font = Enum.Font.GothamBlack
 targetLbl.TextSize = 9
 targetLbl.TextColor3 = Color3.fromRGB(180, 120, 255)
 targetLbl.TextXAlignment = Enum.TextXAlignment.Left
-targetLbl.Parent = main
+targetLbl.Parent = leftCol
 
 local petScroll = Instance.new("ScrollingFrame")
-petScroll.Size = UDim2.new(1, -20, 0, 220)
-petScroll.Position = UDim2.new(0, 10, 0, 106)
+petScroll.Size = UDim2.new(1, 0, 1, -20)
+petScroll.Position = UDim2.new(0, 0, 0, 20)
 petScroll.BackgroundColor3 = Color3.fromRGB(15, 10, 25)
 petScroll.BackgroundTransparency = 0.3
 petScroll.BorderSizePixel = 0
@@ -367,7 +416,7 @@ petScroll.ScrollBarImageTransparency = 0.5
 petScroll.ScrollingDirection = Enum.ScrollingDirection.Y
 petScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
 Instance.new("UICorner", petScroll).CornerRadius = UDim.new(0, 8)
-petScroll.Parent = main
+petScroll.Parent = leftCol
 
 local petScrollLayout = Instance.new("UIListLayout")
 petScrollLayout.Padding = UDim.new(0, 3)
@@ -472,20 +521,28 @@ petScrollLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function
     petScroll.CanvasSize = UDim2.new(0, 0, 0, petScrollLayout.AbsoluteContentSize.Y + 10)
 end)
 
+-- RIGHT COLUMN: Current Pets
+local rightCol = Instance.new("Frame")
+rightCol.Size = UDim2.new(0.5, -8, 1, -80)
+rightCol.Position = UDim2.new(0.5, 4, 0, 38)
+rightCol.BackgroundTransparency = 1
+rightCol.BorderSizePixel = 0
+rightCol.Parent = bodyContent
+
 local currentLbl = Instance.new("TextLabel")
-currentLbl.Size = UDim2.new(1, -20, 0, 18)
-currentLbl.Position = UDim2.new(0, 10, 0, 335)
+currentLbl.Size = UDim2.new(1, 0, 0, 18)
+currentLbl.Position = UDim2.new(0, 0, 0, 0)
 currentLbl.BackgroundTransparency = 1
 currentLbl.Text = "CURRENT PETS IN SERVER"
 currentLbl.Font = Enum.Font.GothamBlack
 currentLbl.TextSize = 9
 currentLbl.TextColor3 = Color3.fromRGB(180, 120, 255)
 currentLbl.TextXAlignment = Enum.TextXAlignment.Left
-currentLbl.Parent = main
+currentLbl.Parent = rightCol
 
 local currentFrame = Instance.new("ScrollingFrame")
-currentFrame.Size = UDim2.new(1, -20, 0, 80)
-currentFrame.Position = UDim2.new(0, 10, 0, 355)
+currentFrame.Size = UDim2.new(1, 0, 1, -20)
+currentFrame.Position = UDim2.new(0, 0, 0, 20)
 currentFrame.BackgroundColor3 = Color3.fromRGB(15, 10, 25)
 currentFrame.BackgroundTransparency = 0.3
 currentFrame.BorderSizePixel = 0
@@ -494,7 +551,7 @@ currentFrame.ScrollBarImageTransparency = 0.5
 currentFrame.ScrollingDirection = Enum.ScrollingDirection.Y
 currentFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 Instance.new("UICorner", currentFrame).CornerRadius = UDim.new(0, 8)
-currentFrame.Parent = main
+currentFrame.Parent = rightCol
 
 local currentLayout = Instance.new("UIListLayout")
 currentLayout.Padding = UDim.new(0, 3)
@@ -551,9 +608,9 @@ end)
 
 local btnRow = Instance.new("Frame")
 btnRow.Size = UDim2.new(1, -20, 0, 32)
-btnRow.Position = UDim2.new(0, 10, 1, -42)
+btnRow.Position = UDim2.new(0, 10, 1, -36)
 btnRow.BackgroundTransparency = 1
-btnRow.Parent = main
+btnRow.Parent = bodyContent
 
 local scanBtn = Instance.new("TextButton")
 scanBtn.Size = UDim2.new(0.48, 0, 1, 0)
@@ -579,6 +636,49 @@ hopBtn.TextColor3 = Color3.fromRGB(150, 255, 150)
 hopBtn.BorderSizePixel = 0
 Instance.new("UICorner", hopBtn).CornerRadius = UDim.new(0, 8)
 hopBtn.Parent = btnRow
+
+-- ═══════════════════════════════════════
+-- RESIZE HANDLE (bottom-right corner)
+-- ═══════════════════════════════════════
+local resizeHandle = Instance.new("TextButton")
+resizeHandle.Size = UDim2.new(0, 18, 0, 18)
+resizeHandle.Position = UDim2.new(1, -18, 1, -18)
+resizeHandle.BackgroundColor3 = Color3.fromRGB(180, 120, 255)
+resizeHandle.BackgroundTransparency = 0.5
+resizeHandle.Text = "⤡"
+resizeHandle.Font = Enum.Font.GothamBold
+resizeHandle.TextSize = 10
+resizeHandle.TextColor3 = Color3.fromRGB(220, 200, 255)
+resizeHandle.BorderSizePixel = 0
+Instance.new("UICorner", resizeHandle).CornerRadius = UDim.new(0, 4)
+resizeHandle.Parent = main
+
+do
+    local resizing = false
+    local resizeStart, startSize
+
+    resizeHandle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            resizing = true
+            resizeStart = input.Position
+            startSize = Vector2.new(main.AbsoluteSize.X, main.AbsoluteSize.Y)
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    resizing = false
+                end
+            end)
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if resizing and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - resizeStart
+            local newW = math.max(MIN_WIDTH, startSize.X + delta.X)
+            local newH = math.max(MIN_HEIGHT, startSize.Y + delta.Y)
+            main.Size = UDim2.new(0, newW, 0, newH)
+        end
+    end)
+end
 
 hopBtn.MouseButton1Click:Connect(function()
     autoHop = not autoHop
