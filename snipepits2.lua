@@ -1,8 +1,11 @@
 if not game:IsLoaded() then game.Loaded:Wait() end
 
-local playerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+-- Define these ONCE at the top so everything shares them
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 
--- Always wait for LoadingGui to exist first, no condition skip
+-- Loading screen handler
 local loadingGui = playerGui:WaitForChild("LoadingGui", 30)
 
 if loadingGui then
@@ -11,7 +14,6 @@ if loadingGui then
     local skipTxt = innerFrame:WaitForChild("SkipTxt")
     local pressAnyTxt = innerFrame:WaitForChild("PressAnyTxt")
 
-    -- Wait until either is visible, meaning loading is done and tap is ready
     repeat task.wait(0.2) until skipTxt.Visible or pressAnyTxt.Visible
     task.wait(0.1)
 
@@ -21,34 +23,26 @@ if loadingGui then
     task.wait(0.05)
     VIM:SendMouseButtonEvent(vp.X / 2, vp.Y / 2, 0, false, game, 0)
 
-    -- Wait until LoadingGui is fully gone before doing ANYTHING else
     repeat task.wait(0.2) until not playerGui:FindFirstChild("LoadingGui")
 end
 
 task.wait(1)
 
--- Failsafe 1: Wait for the character and RootPart to physically exist and be ready
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
+-- Failsafe 1: Wait for character
 local character = player.Character or player.CharacterAdded:Wait()
 local hrp = character:WaitForChild("HumanoidRootPart", 15)
 
--- Failsafe 2: Wait for the pet folder to physically load into the workspace
--- We use a 60-second timeout so the script doesn't hang forever if the server is bugged
+-- Failsafe 2: Wait for pet folder
 local mapFolder = workspace:WaitForChild("Map", 60)
-
 if mapFolder then
-    -- Now wait for the actual spawns folder inside the Map
     mapFolder:WaitForChild("WildPetSpawns", 60)
 else
     warn("Pet Scanner: The Map folder took too long to load or doesn't exist!")
 end
 
-
 local SAVE_FILE = "PetScannerTargets.json"
 local HttpService = game:GetService("HttpService")
-local Players = game:GetService("Players")
+-- Remove the duplicate Players/player/playerGui declarations below, they're already defined above
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local TeleportService = game:GetService("TeleportService")
