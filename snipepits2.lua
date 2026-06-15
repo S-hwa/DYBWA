@@ -698,6 +698,23 @@ local function updateStatus(text, color)
     statusLbl.TextColor3 = color or Color3.fromRGB(120, 120, 160)
 end
 
+-- Counts how many pets matching the given name table exist in backpack + character
+local function countTargetPets(nameTable)
+    local count = 0
+    local function scanFolder(folder)
+        if not folder then return end
+        for _, item in pairs(folder:GetChildren()) do
+            local species = item.Name:match("WildPet_(.-)_WildPet") or item.Name
+            if nameTable[species] or nameTable[item.Name] then
+                count = count + 1
+            end
+        end
+    end
+    pcall(scanFolder, player.Backpack)
+    pcall(scanFolder, player.Character)
+    return count
+end
+
 -- ═══════════════════════════════════════
 -- UNIFIED SINGLE PROCESSING LOOP (BATCH BUY)
 -- ═══════════════════════════════════════
