@@ -1,32 +1,28 @@
--- Pet Scanner v2 - Fixed & Optimized
 if not game:IsLoaded() then game.Loaded:Wait() end
 
 local playerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+
+-- Always wait for LoadingGui to exist first, no condition skip
 local loadingGui = playerGui:WaitForChild("LoadingGui", 30)
 
-if loadingGui and loadingGui.Enabled then
+if loadingGui then
     local variant1 = loadingGui:WaitForChild("Variant1Frame")
     local innerFrame = variant1:WaitForChild("InnerFrame")
     local skipTxt = innerFrame:WaitForChild("SkipTxt")
     local pressAnyTxt = innerFrame:WaitForChild("PressAnyTxt")
-    
-    -- Wait until either SkipTxt or PressAnyTxt is visible
-    repeat task.wait(0.2) until 
-        skipTxt.Visible or pressAnyTxt.Visible
+
+    -- Wait until either is visible, meaning loading is done and tap is ready
+    repeat task.wait(0.2) until skipTxt.Visible or pressAnyTxt.Visible
     task.wait(0.1)
-    
-    -- Simulate a real tap at center of screen using VirtualInputManager
+
     local VIM = game:GetService("VirtualInputManager")
     local vp = workspace.CurrentCamera.ViewportSize
-    local cx, cy = vp.X / 2, vp.Y / 2
-
-    VIM:SendMouseButtonEvent(cx, cy, 0, true, game, 0)
+    VIM:SendMouseButtonEvent(vp.X / 2, vp.Y / 2, 0, true, game, 0)
     task.wait(0.05)
-    VIM:SendMouseButtonEvent(cx, cy, 0, false, game, 0)
-    
-    
-    -- Wait for LoadingGui to disappear
-    repeat task.wait(0.2) until not playerGui:FindFirstChild("LoadingGui") or not loadingGui.Enabled
+    VIM:SendMouseButtonEvent(vp.X / 2, vp.Y / 2, 0, false, game, 0)
+
+    -- Wait until LoadingGui is fully gone before doing ANYTHING else
+    repeat task.wait(0.2) until not playerGui:FindFirstChild("LoadingGui")
 end
 
 task.wait(1)
