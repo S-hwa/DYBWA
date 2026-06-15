@@ -17,8 +17,8 @@ if loadingGui then
     local pressAnyTxt = innerFrame:WaitForChild("PressAnyTxt")
     
     print("waiting to finish loading")
-    repeat task.wait(0.2) until pressAnyTxt.Visible or skipTxt.Visible
-    task.wait(2)
+    repeat task.wait(0.1) until pressAnyTxt.Text:find("Press") or skipTxt.Text:find("Skip")
+    task.wait(1)
     print("skipping")
 
     local VIM = game:GetService("VirtualInputManager")
@@ -27,7 +27,7 @@ if loadingGui then
     task.wait(0.05)
     VIM:SendMouseButtonEvent(vp.X / 2, vp.Y / 2, 0, false, game, 0)
 
-    repeat task.wait(0.2) until not playerGui:FindFirstChild("LoadingGui")
+    task.wait(2)
 end
 
 task.wait(1)
