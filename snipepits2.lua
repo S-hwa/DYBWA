@@ -612,16 +612,8 @@ local function runScanningLoop()
         end
         
         if #petsToBuy > 0 then
-            -- 2. Count how many of these specific pets we ALREADY have in our backpack
-            local initialSpecificCount = 0
-            for _, item in pairs(INVENTORY_FOLDER:GetChildren()) do
-                for targetName, _ in pairs(uniqueNamesToBuy) do
-                    if string.find(item.Name, targetName) then
-                        initialSpecificCount = initialSpecificCount + 1
-                        break -- Found a match, move to the next backpack item
-                    end
-                end
-            end
+            -- 2. Count how many of these specific pets we ALREADY have
+            local initialSpecificCount = countTargetPets(uniqueNamesToBuy)
             
             -- 3. Buy them all as quickly as possible
             local successfulBuys = 0
@@ -641,7 +633,7 @@ local function runScanningLoop()
                 task.wait(0.5) 
             end
             
-            -- 4. Wait for ALL of them to arrive in the backpack
+            -- 4. Wait for ALL of them to arrive in the backpack/character
             if successfulBuys > 0 then
                 local targetCount = initialSpecificCount + successfulBuys
                 updateStatus("⏳ WAITING FOR " .. successfulBuys .. " PET(S) TO APPEAR...", Color3.fromRGB(80, 220, 255))
@@ -651,15 +643,7 @@ local function runScanningLoop()
                 
                 repeat 
                     task.wait(0.3)
-                    currentSpecificCount = 0
-                    for _, item in pairs(INVENTORY_FOLDER:GetChildren()) do
-                        for targetName, _ in pairs(uniqueNamesToBuy) do
-                            if string.find(item.Name, targetName) then
-                                currentSpecificCount = currentSpecificCount + 1
-                                break
-                            end
-                        end
-                    end
+                    currentSpecificCount = countTargetPets(uniqueNamesToBuy)
                 until (currentSpecificCount >= targetCount) or (os.time() - startTime >= MAX_WAIT_TIME)
                 
                 if currentSpecificCount >= targetCount then
