@@ -1,3 +1,4 @@
+print("executed")
 if not game:IsLoaded() then game.Loaded:Wait() end
 
 -- Define these ONCE at the top so everything shares them
@@ -9,13 +10,16 @@ local playerGui = player:WaitForChild("PlayerGui")
 local loadingGui = playerGui:WaitForChild("LoadingGui", 30)
 
 if loadingGui then
+    print("loadingGui true")
     local variant1 = loadingGui:WaitForChild("Variant1Frame")
     local innerFrame = variant1:WaitForChild("InnerFrame")
     local skipTxt = innerFrame:WaitForChild("SkipTxt")
     local pressAnyTxt = innerFrame:WaitForChild("PressAnyTxt")
-
+    
+    print("waiting to finish loading")
     repeat task.wait(0.2) until skipTxt.Visible or pressAnyTxt.Visible
     task.wait(0.1)
+    print("skipping")
 
     local VIM = game:GetService("VirtualInputManager")
     local vp = workspace.CurrentCamera.ViewportSize
@@ -27,6 +31,7 @@ if loadingGui then
 end
 
 task.wait(1)
+print("load done")
 
 -- Failsafe 1: Wait for character
 local character = player.Character or player.CharacterAdded:Wait()
