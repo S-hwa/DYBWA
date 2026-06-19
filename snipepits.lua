@@ -666,6 +666,8 @@ local function runLoop()
                 repeat task.wait(0.5)
                 until countPetInBackpack(pet.name) > initialCount or os.clock() - startTime > MAX_WAIT_FOR_PET
 
+                stopBackgroundClicker()
+
                 if countPetInBackpack(pet.name) > initialCount then
                     updateStatus("✅ Got " .. pet.name .. "! Hopping server...", Color3.fromRGB(100, 255, 120))
                     sendWebhook("@everyone\n✅ **BOUGHT: " .. pet.size .. " " .. pet.name .. "**\nHopping to next server...")
