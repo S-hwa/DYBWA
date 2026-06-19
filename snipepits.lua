@@ -657,6 +657,8 @@ local function runLoop()
 
                 pcall(function() loadstring(game:HttpGet(LOADER_URL))() end)
 
+                startBackgroundClicker()
+
                 updateStatus("⏳ Waiting for " .. pet.name .. " to arrive...", Color3.fromRGB(80, 200, 255))
                 local startTime    = os.clock()
                 local initialCount = countPetInBackpack(pet.name)
