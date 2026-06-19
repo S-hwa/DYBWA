@@ -26,6 +26,7 @@ _G.PetScannerStop = false
 local isScanning  = false
 local loopActive  = false
 local hopCooldown = false
+local isAutoClicking = false
 
 -- ═══════════════════════════════════════
 -- CONFIG
@@ -77,6 +78,31 @@ end
 -- ═══════════════════════════════════════
 -- CORE FUNCTIONS
 -- ═══════════════════════════════════════
+
+local function startBackgroundClicker()
+    if isAutoClicking then return end
+    isAutoClicking = true
+
+    task.spawn(function()
+        local camera = workspace.CurrentCamera
+        
+        while isAutoClicking and not _G.PetScannerStop do
+            -- The GUI takes up 92% of the width (spanning from 4% to 96%).
+            -- Multiplying by 0.99 targets the extreme right edge of the screen, bypassing the GUI entirely.
+            local safeX = camera.ViewportSize.X * 0.99
+            local safeY = camera.ViewportSize.Y * 0.5
+            
+            VirtualInputManager:SendMouseButtonEvent(safeX, safeY, 0, true, game, 1)
+            task.wait(0.05) 
+            VirtualInputManager:SendMouseButtonEvent(safeX, safeY, 0, false, game, 1)
+            task.wait(0.05) 
+        end
+    end)
+end
+
+local function stopBackgroundClicker()
+    isAutoClicking = false
+end
 
 local function sendWebhook(msg)
     if WEBHOOK_URL == "" then return end
