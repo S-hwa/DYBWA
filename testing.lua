@@ -1,18 +1,18 @@
 -- Safeguard to prevent multiple instances of the script running
-if _G.RejoinButtonLoaded then
+if _G.DeltaMobileMenuLoaded then
     return
 end
-_G.RejoinButtonLoaded = true
+_G.DeltaMobileMenuLoaded = true
 
 -- Services
-local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
+local TeleportService = game:GetService("TeleportService")
 local LocalPlayer = Players.LocalPlayer
 
--- Create ScreenGui (Protected under CoreGui so it doesn't clear on death)
+-- Create ScreenGui (Protected under CoreGui so it stays active)
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "DeltaRejoinGUI"
+ScreenGui.Name = "DeltaMobileUtilityGUI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
@@ -26,34 +26,40 @@ else
     ScreenGui.Parent = CoreGui
 end
 
--- Create Rejoin Button
+-- Shared Styling Function to keep both buttons looking identical
+local function styleButton(btn, text, yOffset)
+    btn.Size = UDim2.new(0, 90, 0, 35)
+    btn.Position = UDim2.new(1, -105, 0, yOffset) -- Aligned to the top right
+    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    btn.BorderSizePixel = 0
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.SourceSansBold
+    btn.TextSize = 16
+
+    -- Rounded Corners
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 8)
+    UICorner.Parent = btn
+
+    -- Delta Blue/Cyan Border Stroke
+    local UIStroke = Instance.new("UIStroke")
+    UIStroke.Color = Color3.fromRGB(0, 180, 255)
+    UIStroke.Thickness = 1.5
+    UIStroke.Parent = btn
+end
+
+-- 1. Create Rejoin Button (Top Button)
 local RejoinButton = Instance.new("TextButton")
 RejoinButton.Name = "RejoinButton"
 RejoinButton.Parent = ScreenGui
+styleButton(RejoinButton, "Rejoin", 50) -- Positioned at Y: 50
 
--- Position and Size (Tailored for Mobile Top-Right)
--- Placed slightly below the standard Roblox topbar buttons to avoid overlapping UI
-RejoinButton.Size = UDim2.new(0, 90, 0, 35)
-RejoinButton.Position = UDim2.new(1, -105, 0, 50) 
-
--- Styling (Sleek Dark Theme)
-RejoinButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-RejoinButton.BorderSizePixel = 0
-RejoinButton.Text = "Rejoin"
-RejoinButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-RejoinButton.Font = Enum.Font.SourceSansBold
-RejoinButton.TextSize = 16
-
--- Rounded Corners
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 8)
-UICorner.Parent = RejoinButton
-
--- Stroke/Border
-local UIStroke = Instance.new("UIStroke")
-UIStroke.Color = Color3.fromRGB(0, 180, 255) -- Delta Blue/Cyan accent
-UIStroke.Thickness = 1.5
-UIStroke.Parent = RejoinButton
+-- 2. Create Reset Button (Bottom Button)
+local ResetButton = Instance.new("TextButton")
+ResetButton.Name = "ResetButton"
+ResetButton.Parent = ScreenGui
+styleButton(ResetButton, "Reset", 95) -- Positioned perfectly below Rejoin (Y: 95)
 
 -- Rejoin Functionality
 local function rejoinServer()
@@ -62,10 +68,8 @@ local function rejoinServer()
     
     local success, err = pcall(function()
         if #Players:GetPlayers() <= 1 then
-            -- Solo server: Teleport to a new instance of the same place
             TeleportService:Teleport(game.PlaceId, LocalPlayer)
         else
-            -- Public/Multiplayer server: Rejoin the exact same server instance
             TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
         end
     end)
@@ -79,5 +83,17 @@ local function rejoinServer()
     end
 end
 
--- Mobile friendly activation
+-- Reset Character Functionality
+local function resetCharacter()
+    local character = LocalPlayer.Character
+    if character then
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid and humanoid.Health > 0 then
+            humanoid.Health = 0
+        end
+    end
+end
+
+-- Mobile-friendly Click Listeners
 RejoinButton.MouseButton1Click:Connect(rejoinServer)
+ResetButton.MouseButton1Click:Connect(resetCharacter)
