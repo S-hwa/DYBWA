@@ -25,3 +25,5 @@ local function waitForLoadingScreen()
    print("✅ Loading screen skipped!")
 	return true
 end
+
+waitForLoadingScreen()
