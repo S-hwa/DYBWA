@@ -23,7 +23,6 @@ local function waitForLoadingScreen()
 
    task.cancel(clickScreen)
    print("✅ Loading screen skipped!")
-	return true
 end
 
 waitForLoadingScreen()
